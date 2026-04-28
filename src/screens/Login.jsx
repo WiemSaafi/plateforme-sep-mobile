@@ -25,15 +25,24 @@ const handleLogin = async () => {
       })
       await login(response.data.user, response.data.access_token)
     } catch (error) {
-      const message = error.response?.data?.detail
-      if (message?.includes('pas encore validé') || message?.includes('attente') || message?.includes('actif')) {
+      if (!error.response) {
+        // Network error (timeout, no connection, wrong IP)
         Alert.alert(
-          '⏳ Compte en attente',
-          'Votre compte est en attente de validation par l\'administrateur. Vous recevrez une confirmation une fois votre compte activé.',
+          '🌐 Erreur de connexion',
+          'Impossible de joindre le serveur. Vérifiez que le backend est démarré et que vous êtes sur le même réseau.',
           [{ text: 'OK' }]
         )
       } else {
-        Alert.alert('Erreur', 'Email ou mot de passe incorrect')
+        const message = error.response?.data?.detail
+        if (message?.includes('pas encore validé') || message?.includes('attente') || message?.includes('actif')) {
+          Alert.alert(
+            '⏳ Compte en attente',
+            'Votre compte est en attente de validation par l\'administrateur. Vous recevrez une confirmation une fois votre compte activé.',
+            [{ text: 'OK' }]
+          )
+        } else {
+          Alert.alert('Erreur', 'Email ou mot de passe incorrect')
+        }
       }
     } finally {
       setLoading(false)
